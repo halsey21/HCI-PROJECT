@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}About - Waste Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card border-0 shadow-sm mb-4 notice-card">
+            <div class="card-body p-5">
+                <div class="text-center mb-5">
+                    <div class="bg-blue-light d-inline-block p-4 rounded-circle mb-4">
+                        <i class="fas fa-city fa-4x text-blue"></i>
+                    </div>
+                    <h1 class="font-weight-700 h2 mb-2 text-dark">CITY OF JOHANNESBURG</h1>
+                    <p class="text-muted text-uppercase small letter-spacing-2">Official Municipal Service Portal</p>
+                </div>
+
+                <div class="mb-5 border-start border-4 border-yellow ps-4 py-3 bg-light rounded-end">
+                    <h5 class="font-weight-700 mb-3 text-green">Project Overview</h5>
+                    <p class="lead text-dark mb-0" style="line-height: 1.8; font-size: 1.1rem;">
+                        This is an integrated service management system developed for the <strong>City of Johannesburg</strong> to empower citizens to report issues like potholes, water leaks, and illegal dumping. Our mission is to ensure world-class service delivery and maintain the heartbeat of our city.
+                    </p>
+                </div>
+
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <h5 class="font-weight-700 mb-4 text-blue"><i class="fas fa-cogs me-2"></i>System Functionality</h5>
+                    </div>
+                    
+                    {% with functionalities=functionalities|default:"reporting,evidence,gps,tracking,feed,alerts" %}
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start p-4 h-100 rounded-3 border transition-hover bg-white shadow-sm">
+                            <div class="bg-green-light p-3 rounded-3 me-3 text-green">
+                                <i class="fas fa-bullhorn fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="font-weight-700 mb-1">Issue Reporting</h6>
+                                <p class="small text-muted mb-0">Report illegal dumping and missed collections instantly.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start p-4 h-100 rounded-3 border transition-hover bg-white shadow-sm">
+                            <div class="bg-blue-light p-3 rounded-3 me-3 text-blue">
+                                <i class="fas fa-camera fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="font-weight-700 mb-1">Evidence Support</h6>
+                                <p class="small text-muted mb-0">Upload photos directly from your phone for clear documentation.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start p-4 h-100 rounded-3 border transition-hover bg-white shadow-sm">
+                            <div class="bg-yellow-light p-3 rounded-3 me-3 text-yellow-dark">
+                                <i class="fas fa-map-marker-alt fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="font-weight-700 mb-1">GPS Geolocation</h6>
+                                <p class="small text-muted mb-0">Pinpoint exact locations for faster municipal response.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start p-4 h-100 rounded-3 border transition-hover bg-white shadow-sm">
+                            <div class="bg-blue-light p-3 rounded-3 me-3 text-blue">
+                                <i class="fas fa-chart-line fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="font-weight-700 mb-1">Real-time Tracking</h6>
+                                <p class="small text-muted mb-0">Monitor your report's journey from submission to resolution.</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                </div>
+
+                <div class="mt-5 pt-4 text-center border-top">
+                    <a href="{% url 'menu' %}" class="btn btn-yellow px-5 rounded-pill shadow-sm py-2">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Menu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .font-weight-700 { font-weight: 700; }
+    .letter-spacing-2 { letter-spacing: 2px; }
+    .text-green { color: var(--theme-green) !important; }
+    .text-blue { color: var(--theme-blue) !important; }
+    .text-yellow-dark { color: #856404 !important; }
+    .bg-green-light { background-color: rgba(40, 167, 69, 0.1) !important; }
+    .bg-blue-light { background-color: rgba(13, 110, 253, 0.1) !important; }
+    .bg-yellow-light { background-color: rgba(255, 193, 7, 0.15) !important; }
+    .transition-hover { transition: transform 0.2s, box-shadow 0.2s; }
+    .transition-hover:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important; }
+</style>
+{% endblock %}

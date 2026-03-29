@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Report Details - Waste Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 font-weight-700 text-green mb-0">
+                <i class="fas fa-file-invoice me-2"></i>Report #{{ report.reference_number }}
+            </h1>
+            <a href="{% url 'report_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm notice-card mb-4">
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-4">
+                            <span class="badge rounded-pill px-3 py-2 
+                                {% if report.status == 'RECEIVED' %}bg-cyan 
+                                {% elif report.status == 'ASSIGNED' %}bg-blue
+                                {% elif report.status == 'IN_PROGRESS' %}bg-yellow text-dark
+                                {% elif report.status == 'RESOLVED' %}bg-green
+                                {% elif report.status == 'VERIFIED' %}bg-success{% endif %}">
+                                {{ report.get_status_display }}
+                            </span>
+                        </div>
+                        <h4 class="font-weight-700 text-dark mb-2">{{ report.get_issue_type_display }}</h4>
+                        <p class="text-muted"><i class="fas fa-map-marker-alt text-danger me-2"></i>{{ report.location }}</p>
+                        <p class="text-dark">{{ report.description|default:"No additional description provided." }}</p>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex flex-wrap gap-4 mb-4">
+                            <div>
+                                <p class="small text-muted text-uppercase mb-1 font-weight-700">Submitted On</p>
+                                <p class="mb-0 font-weight-600">{{ report.created_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                            <div>
+                                <p class="small text-muted text-uppercase mb-1 font-weight-700">Assigned Crew</p>
+                                <p class="mb-0 font-weight-600">{{ report.assigned_crew|default:"Awaiting Assignment" }}</p>
+                            </div>
+                            <div>
+                                <p class="small text-muted text-uppercase mb-1 font-weight-700">Residents Tracking</p>
+                                <p class="mb-0 font-weight-600">{{ report.tracking_count }} residents</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <p class="small text-muted text-uppercase mb-2 font-weight-700">Evidence Photo</p>
+                        {% if report.photo %}
+                            <img src="{{ report.photo.url }}" class="img-fluid rounded-3 shadow-sm border" alt="Evidence">
+                        {% else %}
+                            <div class="bg-light rounded-3 border d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-image fa-3x text-muted opacity-25"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="progress-stepper my-5">
+                    <div class="step {% if report.status == 'RECEIVED' or report.status == 'ASSIGNED' or report.status == 'IN_PROGRESS' or report.status == 'RESOLVED' or report.status == 'VERIFIED' %}completed{% endif %}">
+                        <span class="step-label">Received</span>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step {% if report.status == 'ASSIGNED' or report.status == 'IN_PROGRESS' or report.status == 'RESOLVED' or report.status == 'VERIFIED' %}completed{% endif %}">
+                        <span class="step-label">Assigned</span>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step {% if report.status == 'IN_PROGRESS' or report.status == 'RESOLVED' or report.status == 'VERIFIED' %}active{% elif report.status == 'RESOLVED' or report.status == 'VERIFIED' %}completed{% endif %}">
+                        <span class="step-label">In Progress</span>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step {% if report.status == 'RESOLVED' or report.status == 'VERIFIED' %}completed{% endif %}">
+                        <span class="step-label">Resolved</span>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step {% if report.status == 'VERIFIED' %}completed{% endif %}">
+                        <span class="step-label">Verified</span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-5">
+                    {% if report.status == 'RESOLVED' and not report.verification %}
+                        <button type="button" class="btn btn-success px-4 py-2 font-weight-700 shadow-sm" data-bs-toggle="modal" data-bs-target="#verifyModal">
+                            <i class="fas fa-check-double me-2"></i>Confirm or Dispute
+                        </button>
+                    {% endif %}
+                    
+                    <form action="{% url 'add_support' report.reference_number %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn {% if user_supported %}btn-primary{% else %}btn-outline-primary{% endif %} px-4 py-2 font-weight-700 shadow-sm">
+                            <i class="fas fa-thumbs-up me-2"></i>{% if user_supported %}Supported{% else %}Add Support{% endif %} ({{ supports_count }})
+                        </button>
+                    </form>
+
+                    <form action="{% url 'track_report' report.reference_number %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-yellow px-4 py-2 font-weight-700 shadow-sm">
+                            <i class="fas fa-thumbtack me-2"></i>Track This Issue
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Modal -->
+        {% if report.status == 'RESOLVED' %}
+        <div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{% url 'verify_resolution' report.reference_number %}" method="post">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title font-weight-700" id="verifyModalLabel">Verify Resolution</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Has this issue been resolved to your satisfaction?</p>
+                            <div class="mb-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="status" id="confirm" value="CONFIRM" checked>
+                                    <label class="form-check-label" for="confirm">Yes, Confirm</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="status" id="dispute" value="DISPUTE">
+                                    <label class="form-check-label" for="dispute">No, Dispute</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comments" class="form-label">Comments (Optional)</label>
+                                <textarea class="form-control" name="comments" id="comments" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">Submit Feedback</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Update History and Notifications -->
+        <div class="card border-0 shadow-sm notice-card">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 font-weight-700 text-blue"><i class="fas fa-history me-2"></i>Activity & Notifications</h5>
+                <span class="badge bg-light text-muted border">{{ report.notifications.count }} updates</span>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for notification in report.notifications.all|dictsortreversed:"created_at" %}
+                    <div class="timeline-item pb-4 border-start border-2 ps-4 position-relative">
+                        <div class="timeline-marker position-absolute rounded-circle {{ notification.color|default:'bg-blue' }}" 
+                             style="width: 12px; height: 12px; left: -7px; top: 5px; background-color: currentColor;"></div>
+                        <p class="small text-muted mb-1">{{ notification.created_at|date:"M d, Y H:i" }} ({{ notification.created_at|timesince }} ago)</p>
+                        <h6 class="font-weight-700 mb-1">
+                            {{ notification.title }}
+                            {% if notification.is_sms %}<span class="badge bg-yellow text-dark ms-2 x-small">SMS</span>{% endif %}
+                        </h6>
+                        <p class="small text-dark mb-0 {% if notification.is_sms %}font-monospace bg-light p-2 rounded{% endif %}">{{ notification.message }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="timeline-item pb-4 border-start border-2 ps-4 position-relative">
+                        <div class="timeline-marker position-absolute rounded-circle bg-muted" style="width: 12px; height: 12px; left: -7px; top: 5px; background-color: #dee2e6;"></div>
+                        <p class="small text-muted mb-1">{{ report.created_at|date:"M d, Y H:i" }}</p>
+                        <h6 class="font-weight-700 mb-1">Report Submitted</h6>
+                        <p class="small text-dark mb-0">Your request was successfully received by the system.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .font-weight-700 { font-weight: 700; }
+    .font-weight-600 { font-weight: 600; }
+    .text-green { color: var(--theme-green); }
+    .text-blue { color: var(--theme-blue); }
+    .bg-blue { background-color: var(--theme-blue) !important; }
+    .bg-green { background-color: var(--theme-green) !important; }
+    .bg-cyan { background-color: var(--theme-cyan) !important; }
+    .bg-yellow { background-color: var(--theme-yellow) !important; }
+    .badge { font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; }
+    .timeline-item:last-child { border-left: none !important; }
+</style>
+{% endblock %}

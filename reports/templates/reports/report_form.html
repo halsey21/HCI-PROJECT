@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Report a Waste Issue - Waste Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm p-4 notice-card">
+            <div class="card-body">
+                <h2 class="h4 font-weight-700 mb-4 text-center text-green">
+                    <i class="fas fa-edit me-2"></i>Report a Waste Issue
+                </h2>
+                <p class="text-muted text-center small mb-5">Provide details about the issue and our team will investigate it.</p>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-4">
+                        <label for="{{ field.id_for_label }}" class="form-label text-dark small text-uppercase font-weight-700">{{ field.label }}</label>
+                        {% if field.name == 'location' %}
+                            <div class="input-group mb-2">
+                                {{ field }}
+                                <button class="btn btn-yellow px-3" type="button" id="locateBtn"><i class="fas fa-crosshairs"></i></button>
+                            </div>
+                            <div id="map-picker" class="mb-3 rounded-3 border" style="height: 300px; display: none;"></div>
+                            <input type="hidden" name="latitude" id="id_latitude">
+                            <input type="hidden" name="longitude" id="id_longitude">
+                            <p class="small text-muted"><i class="fas fa-info-circle me-1"></i> Drag the map or click the button to confirm your location.</p>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                        
+                        {% if field.errors %}
+                            <div class="invalid-feedback d-block mt-1">
+                                {{ field.errors|first }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-yellow btn-lg text-uppercase font-weight-700 shadow-sm py-3">
+                            Submit Report
+                        </button>
+                        <a href="{% url 'report_list' %}" class="btn btn-outline-secondary btn-lg text-uppercase font-weight-700 py-3">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+                
+                <div class="mt-5 p-3 rounded-3 border bg-light text-center">
+                    <p class="mb-0 small text-muted">
+                        <i class="fas fa-info-circle me-1 text-blue"></i> 
+                        You will receive a unique reference number to track your report's progress.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .font-weight-700 { font-weight: 700; }
+    .text-green { color: var(--theme-green); }
+    .text-blue { color: var(--theme-blue); }
+    .form-label { letter-spacing: 0.5px; }
+    
+    input[type="text"], input[type="file"], select, textarea {
+        border: 1px solid #ced4da !important;
+        border-radius: 8px !important;
+        padding: 0.8rem 1rem !important;
+        font-size: 0.95rem !important;
+        background-color: #ffffff !important;
+    }
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--theme-green) !important;
+        box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.1) !important;
+        outline: none !important;
+    }
+    .btn-yellow { background-color: var(--theme-yellow); color: #212529; font-weight: 700; border: none; }
+    .btn-yellow:hover { background-color: #e0a800; transform: translateY(-1px); }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var mapPicker = document.getElementById('map-picker');
+        var locationInput = document.querySelector('input[name="location"]');
+        var latInput = document.getElementById('id_latitude');
+        var lngInput = document.getElementById('id_longitude');
+        var locateBtn = document.getElementById('locateBtn');
+
+        // Show map when location field is focused
+        locationInput.addEventListener('focus', function() {
+            mapPicker.style.display = 'block';
+            if (!map) {
+                initMap();
+            }
+        });
+
+        var map, marker;
+
+        function initMap() {
+            // Default center: Johannesburg
+            var defaultLat = -26.2041;
+            var defaultLng = 28.0473;
+
+            map = L.map('map-picker').setView([defaultLat, defaultLng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            marker = L.marker([defaultLat, defaultLng], {draggable: true}).addTo(map);
+
+            function updateCoords(lat, lng) {
+                latInput.value = lat.toFixed(6);
+                lngInput.value = lng.toFixed(6);
+                
+                // Reverse geocoding simulation or just generic location text
+                if (!locationInput.value) {
+                    locationInput.value = "Selected location in Joburg";
+                }
+            }
+
+            marker.on('dragend', function(e) {
+                var pos = marker.getLatLng();
+                updateCoords(pos.lat, pos.lng);
+            });
+
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                updateCoords(e.latlng.lat, e.latlng.lng);
+            });
+        }
+
+        locateBtn.addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    
+                    if (map) {
+                        map.setView([lat, lng], 15);
+                        marker.setLatLng([lat, lng]);
+                        updateCoords(lat, lng);
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

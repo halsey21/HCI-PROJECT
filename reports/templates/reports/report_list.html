@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}My Reports - Waste Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 font-weight-600 mb-0"><i class="fas fa-users text-green me-2"></i>Community Feed</h1>
+                <p class="text-muted small">Issues reported near you on the digital notice board.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'community_map' %}" class="btn btn-outline-primary px-4 py-2">
+                    <i class="fas fa-map-location-dot me-2"></i>Map Overlay
+                </a>
+                <a href="{% url 'create_report' %}" class="btn btn-primary px-4 py-2">
+                    <i class="fas fa-plus me-2"></i>Report New Issue
+                </a>
+            </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3">
+                <form action="{% url 'report_list' %}" method="get" id="filterForm" class="d-flex flex-wrap gap-2 align-items-center">
+                    <span class="small font-weight-700 text-muted text-uppercase me-2">Filter By:</span>
+                    <button type="submit" name="category" value="ALL" class="btn btn-sm rounded-pill px-3 {% if selected_category == 'ALL' %}btn-green{% else %}btn-outline-secondary{% endif %}">All Issues</button>
+                    <button type="submit" name="category" value="MISSED_COLLECTION" class="btn btn-sm rounded-pill px-3 {% if selected_category == 'MISSED_COLLECTION' %}btn-green{% else %}btn-outline-secondary{% endif %}">Missed Collection</button>
+                    <button type="submit" name="category" value="ILLEGAL_DUMPING" class="btn btn-sm rounded-pill px-3 {% if selected_category == 'ILLEGAL_DUMPING' %}btn-green{% else %}btn-outline-secondary{% endif %}">Illegal Dumping</button>
+                    <button type="submit" name="category" value="OVERFLOWING_BIN" class="btn btn-sm rounded-pill px-3 {% if selected_category == 'OVERFLOWING_BIN' %}btn-green{% else %}btn-outline-secondary{% endif %}">Overflowing Bin</button>
+                    <button type="submit" name="category" value="LITTERING" class="btn btn-sm rounded-pill px-3 {% if selected_category == 'LITTERING' %}btn-green{% else %}btn-outline-secondary{% endif %}">Littering</button>
+                    <button type="submit" name="category" value="POTHOLE" class="btn btn-sm rounded-pill px-3 {% if selected_category == 'POTHOLE' %}btn-green{% else %}btn-outline-secondary{% endif %}">Potholes</button>
+                    <button type="submit" name="category" value="WATER_LEAK" class="btn btn-sm rounded-pill px-3 {% if selected_category == 'WATER_LEAK' %}btn-green{% else %}btn-outline-secondary{% endif %}">Water Leaks</button>
+                    <button type="submit" name="category" value="ELECTRICITY_OUTAGE" class="btn btn-sm rounded-pill px-3 {% if selected_category == 'ELECTRICITY_OUTAGE' %}btn-green{% else %}btn-outline-secondary{% endif %}">Electricity Outages</button>
+                </form>
+            </div>
+        </div>
+
+        {% if my_reports %}
+        <h5 class="font-weight-700 mb-3"><i class="fas fa-user-circle text-blue me-2"></i>My Submissions</h5>
+        {% for report in my_reports %}
+            {% include 'reports/report_card_partial.html' with report=report %}
+        {% endfor %}
+        <hr class="my-5">
+        {% endif %}
+
+        <h5 class="font-weight-700 mb-3"><i class="fas fa-bullhorn text-yellow me-2"></i>Nearby Issues</h5>
+        {% for report in community_reports %}
+            {% include 'reports/report_card_partial.html' with report=report %}
+        {% empty %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-5 text-center">
+                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No reports found for this category.</h5>
+                <p class="text-muted small">Try a different filter or be the first to report!</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Dashboard style section like the image -->
+    <div class="col-12 mt-4">
+        <h4 class="font-weight-700 mb-4"><i class="fas fa-chart-line text-blue me-2"></i>Municipal Dashboard Overview</h4>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card border-0 bg-blue text-white mb-4 shadow-sm h-100">
+                    <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="small text-uppercase mb-1 opacity-75">Total Reports</p>
+                            <h2 class="mb-0 font-weight-700">{{ reports.count }}</h2>
+                        </div>
+                        <i class="fas fa-file-alt fa-3x opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 bg-green text-white mb-4 shadow-sm h-100">
+                    <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="small text-uppercase mb-1 opacity-75">Resolved Issues</p>
+                            <h2 class="mb-0 font-weight-700">{{ resolved_count|default:"0" }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 bg-yellow text-dark mb-4 shadow-sm h-100">
+                    <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="small text-uppercase mb-1 opacity-75">Active Alerts</p>
+                            <h2 class="mb-0 font-weight-700">{{ alerts_count|default:"1" }}</h2>
+                        </div>
+                        <i class="fas fa-bell fa-3x opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .font-weight-700 { font-weight: 700; }
+    .text-green { color: var(--theme-green); }
+    .text-blue { color: var(--theme-blue); }
+    .bg-blue { background-color: var(--theme-blue) !important; }
+    .bg-green { background-color: var(--theme-green) !important; }
+    .bg-cyan { background-color: var(--theme-cyan) !important; }
+    .bg-yellow { background-color: var(--theme-yellow) !important; }
+    .badge { font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px; }
+</style>
+{% endblock %}

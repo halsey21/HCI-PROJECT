@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Collection Schedule - Track My Waste{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <div class="d-inline-block p-3 rounded-circle bg-light mb-3">
+            <i class="fas fa-calendar-alt fa-3x text-green"></i>
+        </div>
+        <h1 class="display-6 font-weight-700 text-dark">Waste Collection Schedule</h1>
+        <p class="text-muted">Find out when waste collection is scheduled for your area.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm notice-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="px-4 py-3 border-0 text-uppercase small font-weight-700">Area</th>
+                            <th class="px-4 py-3 border-0 text-uppercase small font-weight-700">Collection Day</th>
+                            <th class="px-4 py-3 border-0 text-uppercase small font-weight-700">Estimated Time</th>
+                            <th class="px-4 py-3 border-0 text-uppercase small font-weight-700">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                        {% for item in schedule_data %}
+                        <tr>
+                            <td class="px-4 py-4 font-weight-600">{{ item.area }}</td>
+                            <td class="px-4 py-4">
+                                <span class="badge rounded-pill px-4 py-2 bg-green">{{ item.day }}</span>
+                            </td>
+                            <td class="px-4 py-4 text-blue">
+                                <i class="far fa-clock me-2"></i>{{ item.time }}
+                            </td>
+                            <td class="px-4 py-4 text-muted small">{{ item.notes }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 p-4 bg-light rounded-3 border-start border-4 border-blue shadow-sm">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle text-blue fs-5 me-3"></i>
+            <p class="mb-0 small text-dark">
+                <strong>Note:</strong> Collection times are estimates and may vary due to traffic or weather conditions. Please ensure your waste is ready for collection by 7:00 AM on the scheduled day.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .font-weight-700 { font-weight: 700; }
+    .font-weight-600 { font-weight: 600; }
+    .text-green { color: var(--theme-green) !important; }
+    .text-blue { color: var(--theme-blue) !important; }
+    .bg-green { background-color: var(--theme-green) !important; }
+    .table th { color: #495057; }
+    .table td { vertical-align: middle; }
+</style>
+{% endblock %}

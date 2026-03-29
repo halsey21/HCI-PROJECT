@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Menu - Waste Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="text-center mb-4">
+            <h1 class="font-weight-700 text-green">City of Johannesburg</h1>
+            <p class="text-muted small text-uppercase letter-spacing-2">Municipal Service Portal</p>
+        </div>
+        <div class="card shadow-sm border-0 notice-card mb-4">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="mb-0 text-uppercase small font-weight-700">Track Your Report</h5>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'track_search' %}" method="get">
+                    <div class="input-group">
+                        <input type="text" name="ref_num" class="form-control" placeholder="Enter Report ID (e.g. JOBURG-XXXX)" required>
+                        <button class="btn btn-yellow font-weight-700" type="submit">Track</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 notice-card">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="mb-0 text-uppercase small font-weight-700">System Menu</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'report_list' %}" class="list-group-item list-group-item-action py-3">
+                        <i class="fas fa-list-check me-3 text-blue"></i>My Reports
+                    </a>
+                    <a href="{% url 'create_report' %}" class="list-group-item list-group-item-action py-3">
+                        <i class="fas fa-plus-circle me-3 text-green"></i>Report New Issue
+                    </a>
+                    <a href="{% url 'notifications' %}" class="list-group-item list-group-item-action py-3">
+                        <i class="fas fa-bell me-3 text-yellow"></i>Notifications
+                    </a>
+                    <a href="{% url 'community_map' %}" class="list-group-item list-group-item-action py-3">
+                        <i class="fas fa-map-marked-alt me-3 text-cyan"></i>Community Map
+                    </a>
+                    <a href="{% url 'about' %}" class="list-group-item list-group-item-action py-3">
+                        <i class="fas fa-info-circle me-3 text-secondary"></i>About System
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .font-weight-700 { font-weight: 700; }
+    .letter-spacing-2 { letter-spacing: 2px; }
+    .list-group-item {
+        border-color: #f1f1f1;
+        font-weight: 600;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+    }
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+        border-left: 3px solid var(--theme-green);
+        padding-left: 1.5rem;
+    }
+    .list-group-item i {
+        width: 25px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+    .text-yellow { color: var(--theme-yellow) !important; }
+    .text-cyan { color: var(--theme-cyan) !important; }
+    .text-blue { color: var(--theme-blue) !important; }
+    .text-green { color: var(--theme-green) !important; }
+</style>
+{% endblock %}

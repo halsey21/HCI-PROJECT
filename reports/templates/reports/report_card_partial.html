@@ -1,0 +1,35 @@
+<div class="card mb-4 border-0 shadow-sm notice-card">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="font-weight-700 text-green mb-0">#{{ report.reference_number }}</h5>
+            <span class="badge rounded-pill px-3 py-2 
+                {% if report.status == 'RECEIVED' %}bg-cyan 
+                {% elif report.status == 'ASSIGNED' %}bg-blue
+                {% elif report.status == 'IN_PROGRESS' %}bg-yellow text-dark
+                {% elif report.status == 'RESOLVED' %}bg-green
+                {% elif report.status == 'VERIFIED' %}bg-success{% endif %}">
+                {{ report.get_status_display }}
+            </span>
+        </div>
+        
+        <h6 class="mb-2 font-weight-700 text-dark">{{ report.get_issue_type_display }}</h6>
+        <p class="small text-muted mb-3"><i class="fas fa-map-marker-alt text-danger me-1"></i> {{ report.location }}</p>
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="small text-muted mb-0"><i class="far fa-clock me-1"></i> {{ report.created_at|timesince }} ago</p>
+            <p class="small text-muted mb-0"><i class="fas fa-thumbs-up me-1"></i> {{ report.supports.count }} support(s)</p>
+        </div>
+
+        <div class="d-flex justify-content-center mt-4 gap-2">
+            <form action="{% url 'add_support' report.reference_number %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-primary btn-sm px-3">
+                    <i class="fas fa-thumbs-up me-2"></i>Support
+                </button>
+            </form>
+            <a href="{% url 'report_detail' report.reference_number %}" class="btn btn-yellow px-4 btn-sm">
+                <i class="fas fa-search me-2"></i>View & Track
+            </a>
+        </div>
+    </div>
+</div>

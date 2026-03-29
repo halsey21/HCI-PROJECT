@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications - Waste Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm notice-card">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-uppercase small font-weight-700 text-blue"><i class="fas fa-bell me-2"></i>Notifications</h5>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill">Mark all read</button>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                    <div class="list-group-item py-4 border-bottom {% if notification.is_sms %}bg-sms-sim{% endif %}">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="bg-light p-2 rounded-circle">
+                                    <i class="{{ notification.icon }} {{ notification.color }} fs-5"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h6 class="mb-0 font-weight-700 text-dark">
+                                        {{ notification.title }}
+                                        {% if notification.is_sms %}
+                                            <span class="badge bg-yellow text-dark ms-2 small">SMS SENT</span>
+                                        {% endif %}
+                                    </h6>
+                                    <small class="text-muted x-small">
+                                        {% if notification.created_at %}
+                                            {{ notification.created_at|timesince }} ago
+                                        {% else %}
+                                            {{ notification.time }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                
+                                {% if notification.is_sms %}
+                                    <!-- SMS Bubble Simulation -->
+                                    <div class="sms-bubble mt-2 p-3 rounded-4 shadow-sm position-relative">
+                                        <p class="text-dark small mb-0 font-monospace">{{ notification.message }}</p>
+                                        <div class="sms-tail position-absolute" style="left: -10px; top: 15px; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 15px solid #e9ecef;"></div>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted small mb-3">{{ notification.message }}</p>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-yellow rounded-pill px-3 shadow-sm">Reply 1 for YES</button>
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Reply 2 for NO</button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-5 text-center text-muted">
+                        <i class="fas fa-bell-slash fa-3x mb-3 opacity-25"></i>
+                        <p>No new notifications.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .font-weight-700 { font-weight: 700; }
+    .text-blue { color: var(--theme-blue) !important; }
+    .text-green { color: var(--theme-green) !important; }
+    .text-yellow { color: var(--theme-yellow) !important; }
+    .x-small { font-size: 0.7rem; }
+    .list-group-item { transition: background-color 0.2s; border-left: 0; border-right: 0; }
+    .list-group-item:hover { background-color: #f8f9fa; }
+    .bg-light { background-color: #f1f3f5 !important; }
+    .btn-yellow { background-color: var(--theme-yellow); color: #212529; font-weight: 600; border: none; }
+    .btn-yellow:hover { background-color: #e0a800; transform: translateY(-1px); }
+    
+    /* SMS Simulation Styling */
+    .bg-sms-sim { background-color: #f8f9fa !important; border-left: 4px solid var(--theme-yellow); }
+    .sms-bubble { background-color: #e9ecef; border-radius: 1.5rem; border-top-left-radius: 0.2rem; }
+    .font-monospace { font-family: 'Courier New', Courier, monospace; }
+</style>
+{% endblock %}
